@@ -1,0 +1,16 @@
+note over Browser: User clicks form submit button
+note over Browser, Server: User input sent to server via HTTP POST
+Browser->Server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note
+note over Server: Server pushes new \nnote to notes array
+Server-->Browser: Server sends redirect request
+Browser->Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/notes
+Server-->Browser: notes.html
+Browser->Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
+Server-->Browser: main.css
+Browser->Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.js
+Server-->Browser: main.js
+Browser->Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.js
+note over Browser: Browser executes js script \n which requests data.json
+Browser->Server: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
+Server-->Browser: data.json
+note over Browser: Event handler renders notes
