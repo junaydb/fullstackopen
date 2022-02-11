@@ -1,5 +1,4 @@
 note over Browser: User clicks submit button which \ninvokes event handler in js script
-
 Browser->Server: HTTP POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
 note over Browser, Server: No further requests. \nBrowser used js script to send new note to server as JSON.
-note over Browser: Browswer re-renders notes
+note over Browser: Browser re-renders notes
