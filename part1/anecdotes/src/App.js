@@ -27,7 +27,7 @@ const App = () => {
 
   const setRandom = (selected) => {
     let nextSelected = Math.floor(Math.random() * anecdotes.length);
-    // ensure new same anecdote doesn't appear consecutively
+    // ensure same anecdote doesn't appear consecutively
     while (nextSelected === selected) {
       nextSelected = Math.floor(Math.random() * anecdotes.length);
     }
