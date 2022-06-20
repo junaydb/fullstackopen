@@ -23,7 +23,7 @@ const App = () => {
   ];
 
   const [selected, setSelected] = useState(0);
-  const [votes, updateVotes] = useState(new Array(7).fill(0));
+  const [votes, updateVotes] = useState(new Array(anecdotes.length).fill(0));
 
   const setRandom = (selected) => {
     let nextSelected = Math.floor(Math.random() * anecdotes.length);
