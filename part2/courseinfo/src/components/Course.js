@@ -1,7 +1,7 @@
-const Course = ({ course }) => (
+const Course = ({ name, parts }) => (
   <>
-    <Header name={course.name} />
-    <Content parts={course.parts} />
+    <Header name={name} />
+    <Content parts={parts} />
   </>
 );
 
@@ -16,8 +16,8 @@ const Content = ({ parts }) => {
 
   return (
     <div>
-      {parts.map((part) => (
-        <Part key={part.id} part={part} />
+      {parts.map(({ id, name, exercises }) => (
+        <Part key={id} name={name} exercises={exercises} />
       ))}
       <p>
         <strong>total of {total} exercises</strong>
@@ -26,10 +26,10 @@ const Content = ({ parts }) => {
   );
 };
 
-const Part = ({ part }) => {
+const Part = ({ name, exercises }) => {
   return (
     <p>
-      {part.name} {part.exercises}
+      {name} {exercises}
     </p>
   );
 };
