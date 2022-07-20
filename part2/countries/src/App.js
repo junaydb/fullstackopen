@@ -51,7 +51,7 @@ const App = () => {
   let countriesToShow = [];
   if (data) {
     countriesToShow = data.filter(({ name }) =>
-      name["common"].toLowerCase().includes(filter.toLowerCase().trim())
+      name["common"].toLowerCase().startsWith(filter.toLowerCase().trim())
     );
   }
 

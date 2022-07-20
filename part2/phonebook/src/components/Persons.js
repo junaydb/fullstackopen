@@ -1,23 +1,44 @@
-const Persons = ({ persons, filter }) => (
-  <div>
-    {!filter
-      ? persons.map(({ id, name, number }) => (
-          <Person key={id} name={name} number={number} />
+import pbServices from "../services";
+
+const Persons = ({ persons, setPersons, filter }) => {
+  let personsToShow = [];
+  !filter
+    ? (personsToShow = persons)
+    : (personsToShow = persons.filter(({ name }) =>
+        name.toLowerCase().startsWith(filter.toLowerCase())
+      ));
+
+  return (
+    <section>
+      {persons.length === 0 ? (
+        <p>No contacts found</p>
+      ) : (
+        personsToShow.map(({ id, name, number }) => (
+          <div key={id}>
+            <Person name={name} number={number} />{" "}
+            <button
+              onClick={() =>
+                pbServices
+                  .remove(id, name)
+                  .then(() => pbServices.getAll())
+                  .then((response) => {
+                    setPersons(response);
+                  })
+              }
+            >
+              delete
+            </button>
+          </div>
         ))
-      : persons
-          .filter(({ name }) =>
-            name.toLowerCase().includes(filter.toLowerCase())
-          )
-          .map(({ id, name, number }) => (
-            <Person key={id} name={name} number={number} />
-          ))}
-  </div>
-);
+      )}
+    </section>
+  );
+};
 
 const Person = ({ name, number }) => (
-  <p>
+  <>
     {name} {number}
-  </p>
+  </>
 );
 
 export default Persons;
