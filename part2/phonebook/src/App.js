@@ -1,23 +1,34 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 
 import pbServices from "./services";
 
 import Filter from "./components/Filter";
 import Form from "./components/Form";
 import Persons from "./components/Persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [filter, setFilter] = useState("");
   const [persons, setPersons] = useState("");
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
+  const [message, setMessage] = useState(null);
+  const [messageType, setMessageType] = useState(null);
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((result) => {
-      setPersons(result.data);
+    pbServices.getAll().then((response) => {
+      setPersons(response);
     });
   }, []);
+
+  const showNotif = (type, message) => {
+    setMessage(message);
+    setMessageType(type);
+
+    setTimeout(() => {
+      setMessage(null);
+    }, 5000);
+  };
 
   const handleNameChange = (e) => {
     setNewName(e.target.value);
@@ -31,8 +42,26 @@ const App = () => {
     setFilter(e.target.value);
   };
 
+  const handleDeleteButton = (id, name) => {
+    const confirm = window.confirm(`Delete ${name}?`);
+
+    if (confirm) {
+      const request = pbServices.remove(id, name, confirm);
+      request.then(() => {
+        setPersons(persons.filter((person) => person.id !== id));
+
+        showNotif("caution", `Deleted ${name}`);
+      });
+    }
+  };
+
   const addPerson = (e) => {
     e.preventDefault();
+
+    const clearForm = () => {
+      setNewName("");
+      setNewNumber("");
+    };
 
     const person = {
       name: newName,
@@ -53,22 +82,34 @@ const App = () => {
         `${duplicate.name} already exists in your phonebook, replace the old number with a new one?`
       );
     } else {
-      pbServices
-        .add(person)
-        .then((response) => setPersons(persons.concat(response)));
+      pbServices.add(person).then((response) => {
+        setPersons(persons.concat(response));
+        showNotif("success", `Added ${newName}`);
+      });
 
-      setNewName("");
-      setNewNumber("");
+      clearForm();
     }
 
     if (confirm) {
       pbServices
         .replace(duplicate.id, person)
-        .then(() => pbServices.getAll())
-        .then((response) => setPersons(response));
+        .then((response) => {
+          setPersons(
+            persons.map((person) =>
+              person.id !== duplicate.id ? person : response
+            )
+          );
 
-      setNewName("");
-      setNewNumber("");
+          showNotif("success", `Updated ${newName}`);
+        })
+        .catch(() => {
+          showNotif(
+            "error",
+            `Information of ${newName} has already been removed from server`
+          );
+        });
+
+      clearForm();
     }
   };
 
@@ -90,12 +131,18 @@ const App = () => {
           newNumber={newNumber}
           handleNumberChange={handleNumberChange}
         />
+
+        <Notification type={messageType} message={message} />
       </section>
 
       <section>
         <h3>Numbers</h3>
 
-        <Persons filter={filter} persons={persons} setPersons={setPersons} />
+        <Persons
+          filter={filter}
+          persons={persons}
+          handleDeleteButton={handleDeleteButton}
+        />
       </section>
     </div>
   );

@@ -1,11 +1,9 @@
-import pbServices from "../services";
-
-const Persons = ({ persons, setPersons, filter }) => {
+const Persons = ({ persons, filter, handleDeleteButton }) => {
   let personsToShow = [];
   !filter
     ? (personsToShow = persons)
     : (personsToShow = persons.filter(({ name }) =>
-        name.toLowerCase().startsWith(filter.toLowerCase())
+        name.toLowerCase().includes(filter.toLowerCase())
       ));
 
   return (
@@ -16,18 +14,7 @@ const Persons = ({ persons, setPersons, filter }) => {
         personsToShow.map(({ id, name, number }) => (
           <div key={id}>
             <Person name={name} number={number} />{" "}
-            <button
-              onClick={() =>
-                pbServices
-                  .remove(id, name)
-                  .then(() => pbServices.getAll())
-                  .then((response) => {
-                    setPersons(response);
-                  })
-              }
-            >
-              delete
-            </button>
+            <button onClick={() => handleDeleteButton(id, name)}>delete</button>
           </div>
         ))
       )}

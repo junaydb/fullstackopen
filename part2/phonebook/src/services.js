@@ -12,15 +12,13 @@ const add = (personObj) => {
   return request.then((response) => response.data);
 };
 
-const remove = (id, name) => {
-  const confirm = window.confirm(`Delete ${name}?`);
-  if (confirm) {
-    return axios.delete(baseUrl + `/${id}`);
-  }
+const remove = (id) => {
+  return axios.delete(baseUrl + `/${id}`);
 };
 
 const replace = (id, personObj) => {
-  return axios.put(baseUrl + `/${id}`, personObj);
+  const request = axios.put(baseUrl + `/${id}`, personObj);
+  return request.then((response) => response.data);
 };
 
 export default { getAll, add, remove, replace };
