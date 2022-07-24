@@ -1,9 +1,11 @@
-const Notification = ({ type, message }) => {
-  const classes = "notif " + type;
-
-  if (message == null) {
+const Notification = ({ notification }) => {
+  if (notification == null) {
     return null;
   }
+
+  const { type, message } = notification;
+
+  const classes = "notif " + type;
 
   return (
     <div>

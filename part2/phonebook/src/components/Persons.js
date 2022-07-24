@@ -1,14 +1,7 @@
-const Persons = ({ persons, filter, handleDeleteButton }) => {
-  let personsToShow = [];
-  !filter
-    ? (personsToShow = persons)
-    : (personsToShow = persons.filter(({ name }) =>
-        name.toLowerCase().includes(filter.toLowerCase())
-      ));
-
+const Persons = ({ personsToShow, handleDeleteButton }) => {
   return (
     <section>
-      {persons.length === 0 ? (
+      {personsToShow.length === 0 ? (
         <p>No contacts found</p>
       ) : (
         personsToShow.map(({ id, name, number }) => (

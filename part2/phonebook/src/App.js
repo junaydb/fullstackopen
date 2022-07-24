@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import pbServices from "./services";
+import pbServices from "./services/pbServices";
 
 import Filter from "./components/Filter";
 import Form from "./components/Form";
@@ -9,11 +9,10 @@ import Notification from "./components/Notification";
 
 const App = () => {
   const [filter, setFilter] = useState("");
-  const [persons, setPersons] = useState("");
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
-  const [message, setMessage] = useState(null);
-  const [messageType, setMessageType] = useState(null);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     pbServices.getAll().then((response) => {
@@ -21,38 +20,12 @@ const App = () => {
     });
   }, []);
 
-  const showNotif = (type, message) => {
-    setMessage(message);
-    setMessageType(type);
+  const showNotification = (type, message) => {
+    setNotification({ type, message });
 
     setTimeout(() => {
-      setMessage(null);
+      setNotification(null);
     }, 5000);
-  };
-
-  const handleNameChange = (e) => {
-    setNewName(e.target.value);
-  };
-
-  const handleNumberChange = (e) => {
-    setNewNumber(e.target.value);
-  };
-
-  const handleFilterChange = (e) => {
-    setFilter(e.target.value);
-  };
-
-  const handleDeleteButton = (id, name) => {
-    const confirm = window.confirm(`Delete ${name}?`);
-
-    if (confirm) {
-      const request = pbServices.remove(id, name, confirm);
-      request.then(() => {
-        setPersons(persons.filter((person) => person.id !== id));
-
-        showNotif("caution", `Deleted ${name}`);
-      });
-    }
   };
 
   const addPerson = (e) => {
@@ -72,53 +45,72 @@ const App = () => {
       return alert("Cannot leave a field blank");
     }
 
-    let confirm;
     const duplicate = persons.find(
       ({ name }) => name.toLowerCase() === newName.toLowerCase()
     );
 
     if (duplicate) {
-      confirm = window.confirm(
+      const confirm = window.confirm(
         `${duplicate.name} already exists in your phonebook, replace the old number with a new one?`
       );
+      if (confirm) {
+        pbServices
+          .replace(duplicate.id, person)
+          .then((response) => {
+            setPersons(
+              persons.map((person) =>
+                person.id !== duplicate.id ? person : response
+              )
+            );
+            showNotification("success", `Updated ${newName}`);
+          })
+          .catch(() => {
+            showNotification(
+              "error",
+              `Information of ${newName} has already been removed from server`
+            );
+          });
+
+        clearForm();
+      }
     } else {
       pbServices.add(person).then((response) => {
         setPersons(persons.concat(response));
-        showNotif("success", `Added ${newName}`);
+        showNotification("success", `Added ${newName}`);
+
+        clearForm();
       });
-
-      clearForm();
-    }
-
-    if (confirm) {
-      pbServices
-        .replace(duplicate.id, person)
-        .then((response) => {
-          setPersons(
-            persons.map((person) =>
-              person.id !== duplicate.id ? person : response
-            )
-          );
-
-          showNotif("success", `Updated ${newName}`);
-        })
-        .catch(() => {
-          showNotif(
-            "error",
-            `Information of ${newName} has already been removed from server`
-          );
-        });
-
-      clearForm();
     }
   };
+
+  const deletePerson = (id, name) => {
+    const confirm = window.confirm(`Delete ${name}?`);
+
+    if (confirm) {
+      const request = pbServices.remove(id);
+      request.then(() => {
+        setPersons(persons.filter((person) => person.id !== id));
+
+        showNotification("caution", `Deleted ${name}`);
+      });
+    }
+  };
+
+  const personsToShow = !filter
+    ? persons
+    : persons.filter(({ name }) =>
+        name.toLowerCase().includes(filter.toLowerCase())
+      );
 
   return (
     <div>
       <section>
         <h2>Phonebook</h2>
 
-        <Filter filter={filter} handleFilterChange={handleFilterChange} />
+        <Filter
+          filter={filter}
+          handleFilterChange={({ target }) => setFilter(target.value)}
+        />
       </section>
 
       <section>
@@ -127,21 +119,20 @@ const App = () => {
         <Form
           addPerson={addPerson}
           newName={newName}
-          handleNameChange={handleNameChange}
+          handleNameChange={({ target }) => setNewName(target.value)}
           newNumber={newNumber}
-          handleNumberChange={handleNumberChange}
+          handleNumberChange={({ target }) => setNewNumber(target.value)}
         />
 
-        <Notification type={messageType} message={message} />
+        <Notification notification={notification} />
       </section>
 
       <section>
         <h3>Numbers</h3>
 
         <Persons
-          filter={filter}
-          persons={persons}
-          handleDeleteButton={handleDeleteButton}
+          personsToShow={personsToShow}
+          handleDeleteButton={deletePerson}
         />
       </section>
     </div>

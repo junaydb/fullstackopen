@@ -13,11 +13,11 @@ const add = (personObj) => {
 };
 
 const remove = (id) => {
-  return axios.delete(baseUrl + `/${id}`);
+  return axios.delete(`${baseUrl}/${id}`);
 };
 
 const replace = (id, personObj) => {
-  const request = axios.put(baseUrl + `/${id}`, personObj);
+  const request = axios.put(`${baseUrl}/${id}`, personObj);
   return request.then((response) => response.data);
 };
 
