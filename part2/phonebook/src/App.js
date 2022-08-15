@@ -41,58 +41,36 @@ const App = () => {
       number: newNumber,
     };
 
-    if (!newName || !newNumber) {
-      return alert("Cannot leave a field blank");
-    }
-
     const duplicate = persons.find(
       ({ name }) => name.toLowerCase() === newName.toLowerCase()
     );
 
-    if (duplicate) {
-      const confirm = window.confirm(
-        `${duplicate.name} already exists in your phonebook, replace the old number with a new one?`
-      );
-      if (confirm) {
-        pbServices
-          .replace(duplicate.id, person)
-          .then((response) => {
-            setPersons(
-              persons.map((person) =>
-                person.id !== duplicate.id ? person : response
-              )
-            );
-            showNotification("success", `Updated ${newName}`);
-          })
-          .catch(() => {
-            showNotification(
-              "error",
-              `Information of ${newName} has already been removed from server`
-            );
-          });
+    !newName || !newNumber
+      ? showNotification("error", "Cannot leave a field blank")
+      : duplicate
+      ? showNotification("error", "Name must be unique")
+      : pbServices.add(person).then((response) => {
+          setPersons(persons.concat(response));
+          showNotification("success", `Added ${newName}`);
 
-        clearForm();
-      }
-    } else {
-      pbServices.add(person).then((response) => {
-        setPersons(persons.concat(response));
-        showNotification("success", `Added ${newName}`);
-
-        clearForm();
-      });
-    }
+          clearForm();
+        });
   };
 
   const deletePerson = (id, name) => {
     const confirm = window.confirm(`Delete ${name}?`);
 
     if (confirm) {
-      const request = pbServices.remove(id);
-      request.then(() => {
-        setPersons(persons.filter((person) => person.id !== id));
+      pbServices
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter((person) => person.id !== id));
 
-        showNotification("caution", `Deleted ${name}`);
-      });
+          showNotification("caution", `Deleted ${name}`);
+        })
+        .catch((error) => {
+          showNotification("error", error.response.data.message);
+        });
     }
   };
 
