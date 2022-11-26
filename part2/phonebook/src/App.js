@@ -45,18 +45,35 @@ const App = () => {
       ({ name }) => name.toLowerCase() === newName.toLowerCase()
     );
 
-    !newName || !newNumber
-      ? showNotification("error", "Cannot leave a field blank")
-      : duplicate
-      ? showNotification("error", "Name must be unique")
-      : pbServices
-          .add(person)
+    if (!newName || !newNumber) {
+      showNotification("error", "Cannot leave a field blank");
+      return;
+    }
+
+    if (duplicate) {
+      console.log("duplicate");
+
+      if (window.confirm(`Replace current number for ${newName}?`)) {
+        pbServices
+          .replace(duplicate.id, person)
           .then(() => pbServices.getAll())
           .then((persons) => {
             setPersons(persons);
-            showNotification("success", `Added ${newName}`);
+            showNotification("success", `Updated ${newName}`);
             clearForm();
-          });
+          })
+          .catch((err) => console.log("error"));
+      }
+    } else {
+      pbServices
+        .add(person)
+        .then(() => pbServices.getAll())
+        .then((persons) => {
+          setPersons(persons);
+          showNotification("success", `Added ${newName}`);
+          clearForm();
+        });
+    }
   };
 
   const deletePerson = (id, name) => {

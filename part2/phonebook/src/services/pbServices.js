@@ -3,14 +3,12 @@ import axios from "axios";
 const baseUrl = "/api/persons";
 
 const getAll = async () => {
-  const request = axios.get(baseUrl);
-  const response = await request;
+  const response = await axios.get(baseUrl);
   return response.data;
 };
 
 const add = async (personObj) => {
-  const request = axios.post(baseUrl, personObj);
-  const response = await request;
+  const response = await axios.post(baseUrl, personObj);
   return response.data;
 };
 
@@ -19,9 +17,15 @@ const remove = (id) => {
 };
 
 const replace = async (id, personObj) => {
-  const request = axios.put(`${baseUrl}/${id}`, personObj);
-  const response = await request;
+  const response = await axios.put(`${baseUrl}/${id}`, personObj);
   return response.data;
 };
 
-export default { getAll, add, remove, replace };
+const pbServices = {
+  getAll,
+  add,
+  remove,
+  replace,
+};
+
+export default pbServices;
