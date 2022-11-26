@@ -49,12 +49,14 @@ const App = () => {
       ? showNotification("error", "Cannot leave a field blank")
       : duplicate
       ? showNotification("error", "Name must be unique")
-      : pbServices.add(person).then((response) => {
-          setPersons(persons.concat(response));
-          showNotification("success", `Added ${newName}`);
-
-          clearForm();
-        });
+      : pbServices
+          .add(person)
+          .then(() => pbServices.getAll())
+          .then((persons) => {
+            setPersons(persons);
+            showNotification("success", `Added ${newName}`);
+            clearForm();
+          });
   };
 
   const deletePerson = (id, name) => {
